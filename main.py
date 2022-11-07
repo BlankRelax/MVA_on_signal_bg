@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.neural_network import MLPClassifier as MLPC
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
@@ -32,6 +33,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_
 clf = LDA()
 clf.fit(X_train, y_train)
 
+mlp = MLPC(hidden_layer_sizes=(3), activation='tanh', max_iter=2000, random_state=6)
+mlp.fit(X_train, y_train)
+y_pred_mlp = mlp.predict(X_test)
+print(metrics.accuracy_score(y_test,y_pred_mlp))
+
+
+
 # Evaluate accuracy using the test data.
 # If available, use the decision function, else (e.g. for MLP) use predict_proba
 # Adjust threshold value tCut or pMin as appropriate
@@ -49,13 +57,26 @@ else:
     y_bkg_pred = (clf.predict_proba(X_bkg_test)[:,1]  >= pCut).astype(bool)
     y_sig_pred = (clf.predict_proba(X_sig_test)[:,1]  >= pCut).astype(bool)
 
+
+tCut_mlp = 0.5
+y_bkg_pred_mlp = (mlp.predict_proba(X_bkg_test)[:,1] >= tCut_mlp).astype(bool)
+y_sig_pred_mlp = (mlp.predict_proba(X_sig_test)[:,1] >= tCut_mlp).astype(bool)
+
+
+sig_power_mlp = metrics.accuracy_score(y_sig_test, y_sig_pred_mlp)        # = Prob(t >= tCut|sig)
+print('power of test with respect to signal for MLPC = ', sig_power_mlp)
+
+bkg_power_mlp = metrics.accuracy_score(y_bkg_test, y_bkg_pred_mlp)
+print('power of test with respect to background for MLPC = ', bkg_power_mlp)
+
 sig_power = metrics.accuracy_score(y_sig_test, y_sig_pred)        # = Prob(t >= tCut|sig)
 print('power of test with respect to signal = ', sig_power)
-bkg_power = metrics.accuracy_score(y_bkg_test, y_bkg_pred)
-print('power of test with respect to background = ', bkg_power)
 
 #  Add code here to obtain the background efficiency
 # = size of test alpha = Prob(t >= tCut|bkg)
+bkg_power = metrics.accuracy_score(y_bkg_test, y_bkg_pred)
+print('power of test with respect to background = ', bkg_power)
+
 
 
 
@@ -80,5 +101,18 @@ plt.ylabel('$f(t)$', labelpad=3)
 n, bins, patches = plt.hist(tSig, bins=bins, density=True, histtype='step', fill=False, color='dodgerblue')
 n, bins, patches = plt.hist(tBkg, bins=bins, density=True, histtype='step', fill=False, color='red', alpha=0.5)
 #plt.savefig("decision_function_hist.pdf", format='pdf')
+plt.show()
 
+tTest = mlp.predict_proba(X_test)[:,1]       # for e.g. MLP need to use predict_proba
+tBkg = tTest[y_test==0]
+tSig = tTest[y_test==1]
+nBins = 50
+tMin = np.floor(np.min(tTest))
+tMax = np.ceil(np.max(tTest))
+bins = np.linspace(tMin, tMax, nBins+1)
+plt.xlabel('decision function $t$', labelpad=3)
+plt.ylabel('$f(t)$', labelpad=3)
+n, bins, patches = plt.hist(tSig, bins=bins, density=True, histtype='step', fill=False, color='dodgerblue')
+n, bins, patches = plt.hist(tBkg, bins=bins, density=True, histtype='step', fill=False, color='red', alpha=0.5)
+#plt.savefig("decision_function_hist.pdf", format='pdf')
 plt.show()
