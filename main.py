@@ -36,7 +36,7 @@ clf.fit(X_train, y_train)
 mlp = MLPC(hidden_layer_sizes=(3), activation='tanh', max_iter=2000, random_state=6)
 mlp.fit(X_train, y_train)
 y_pred_mlp = mlp.predict(X_test)
-print(metrics.accuracy_score(y_test,y_pred_mlp))
+print("Accuracy of MLP predicter is: "+str(metrics.accuracy_score(y_test,y_pred_mlp)))
 
 
 
@@ -77,11 +77,6 @@ print('power of test with respect to signal = ', sig_power)
 bkg_power = metrics.accuracy_score(y_bkg_test, y_bkg_pred)
 print('power of test with respect to background = ', bkg_power)
 
-
-
-
-
-
 # make histogram of decision function
 plt.figure()                                     # new window
 matplotlib.rcParams.update({'font.size':14})     # set all font sizes
@@ -116,3 +111,4 @@ n, bins, patches = plt.hist(tSig, bins=bins, density=True, histtype='step', fill
 n, bins, patches = plt.hist(tBkg, bins=bins, density=True, histtype='step', fill=False, color='red', alpha=0.5)
 #plt.savefig("decision_function_hist.pdf", format='pdf')
 plt.show()
+
