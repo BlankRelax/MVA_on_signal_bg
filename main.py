@@ -1,6 +1,4 @@
-#  simpleClassifier.py
-#  G. Cowan / RHUL Physics / November 2021
-#  Simple program to illustrate classification with scikit-learn
+
 
 import scipy as sp
 import numpy as np
